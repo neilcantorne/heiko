@@ -3,15 +3,17 @@
 </p>
 <h1 align="center">Heikousen</h1>
 
-<p align="center">
+<p align="center" style="vertical-align:middle">
     <a href="https://github.com/neilcantorne/heiko/actions/workflows/ci.yml">
         <img src="https://github.com/neilcantorne/heiko/actions/workflows/ci.yml/badge.svg" />
     </a>
-    &nbsp;&nbsp;Status: <b>WIP</b>
 </p>
 
-<p>Heikousen ("Parallel Lines") lines of code that leverage GPU parallel execution.
-Write compute kernels in idiomatic Rust code, and execute on GPU and other hardware accelerators through OpenCL or Nvidia CUDA backend.</p>
+<p>
+    Heikousen ("Parallel Lines") lines of code that leverage GPU parallel execution.
+    Write compute kernels in idiomatic Rust code, and execute on GPU and other hardware accelerators through OpenCL or Nvidia CUDA backend. <br>
+    <b>Work in progress</b>
+</p>
 
 ---
 
