@@ -5,7 +5,7 @@
 
 <p align="center" style="vertical-align:middle">
     <a href="https://github.com/neilcantorne/heiko/actions/workflows/ci.yml">
-        <img src="https://github.com/neilcantorne/heiko/actions/workflows/ci.yml/badge.svg" />
+        <img src="https://github.com/neilcantorne/heiko/actions/workflows/ci.yml/badge.svg?branch=dev" />
     </a>
 </p>
 
