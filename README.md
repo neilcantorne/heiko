@@ -4,7 +4,10 @@
 <h1 align="center">Heikousen</h1>
 
 <p align="center">
-Status: <b>WIP</b>
+    <a href="https://github.com/neilcantorne/heiko/actions/workflows/ci.yml">
+        <img src="https://github.com/neilcantorne/heiko/actions/workflows/ci.yml/badge.svg" />
+    </a>
+    &nbsp;&nbsp;Status: <b>WIP</b>
 </p>
 
 <p>Heikousen ("Parallel Lines") lines of code that leverage GPU parallel execution.
@@ -16,7 +19,8 @@ Write compute kernels in idiomatic Rust code, and execute on GPU and other hardw
 Example of convolutional operation commonly use in Convolutional Neural Networks.
 
 **Define Compute Kernel**<br>
-
+Write compute kernel like normal Rust function and use heiko::kernel macro to indicate that the function is a compute kernel.
+The compute kernel will be compiled to NVVM PTX for Nvidia CUDA or SPIR-V for OpenCL.
 
 ```rust
 use heiko::Tensor2d;
@@ -31,7 +35,7 @@ fn convolve(image: &Tensor2d<f32>, filter: &Tensor2d<f32>,
 ```
 
 **Find a device**<br>
-Use heiko::Device::devices() to retrieve available devices on your computer
+Use heiko::Device::devices() to retrieve available devices on your computer.
 
 ```rust
 use heiko::Device;
