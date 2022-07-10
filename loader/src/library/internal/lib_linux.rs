@@ -25,8 +25,11 @@ impl Library {
         Ok( Self { handle } )
     }
 
-    pub unsafe fn get_fn<T>(&self, symbol: &str) -> Option<T>{
-        todo!();
+    pub unsafe fn get_fn(&self, symbol: &str) -> Option<*const c_void> {
+        match CString::new(symbol) {
+            Ok(cstr) => Some(dlsym(self.handle, cstr.as_ptr())),
+            Err(_) => None
+        }
     }
 }
 
