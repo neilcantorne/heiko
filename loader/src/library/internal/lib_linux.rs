@@ -1,4 +1,6 @@
 #![allow(non_camel_case_types)]
+#![allow(dead_code)]
+
 use std::{os::raw::c_char, ffi::{c_void, CString, CStr}};
 
 pub(crate) struct Library {
