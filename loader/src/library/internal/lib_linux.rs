@@ -27,7 +27,11 @@ impl Library {
 
     pub unsafe fn get_fn(&self, symbol: &str) -> Option<*const c_void> {
         match CString::new(symbol) {
-            Ok(cstr) => Some(dlsym(self.handle, cstr.as_ptr())),
+            Ok(cstr) => {
+                let ptr = dlsym(self.handle, cstr.as_ptr());
+                if ptr.is_null() { return None; }
+                Some(ptr)
+            },
             Err(_) => None
         }
     }
