@@ -1,12 +1,28 @@
-use std::{os::raw::c_char, ffi::c_void};
+#![allow(non_camel_case_types)]
+use std::{os::raw::c_char, ffi::{c_void, CString, CStr}};
 
 pub(crate) struct Library {
-
-}
+    handle : lib_handle
+}   
 
 impl Library {
     pub unsafe fn load(name: &str) -> Result<Self, crate::library::LoadError> {
-        todo!();
+        let handle = {
+            let name_cstr = CString::new(name)?;
+            dlopen(name_cstr.as_ptr(), RTLD_LAZY)
+        };
+
+        if handle.is_null() {
+            let error = CStr::from_ptr(dlerror());
+
+            return Err(crate::library::LoadError::Unix { 
+                message:  error
+                    .to_str()?
+                    .to_string()
+            });
+        }
+
+        Ok( Self { handle } )
     }
 
     pub unsafe fn get_fn<T>(&self, symbol: &str) -> Option<T>{
