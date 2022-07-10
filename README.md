@@ -30,9 +30,9 @@ use heiko::Tensor2d;
 // Convolutional filter for grayscale image
 // This function/compute kernel will execute on GPU
 #[heiko::kernel]
-fn convolve(image: &Tensor2d<f32>, filter: &Tensor2d<f32>,
-    indexed!(index: &TensorIndex2d), output: &mut Tensor2d<f32>) {
-    output[region] = image[index].dot_product(filter);
+fn convolve(image: &Tensor2d<f32>::Slide::Mapped::Scaled,
+    filter: &Tensor2d<f32>, output: &mut Tensor2d<f32>) {
+    output[image.dest] = image[image.window].dot_product(filter);
 }
 ```
 
@@ -83,13 +83,15 @@ async fn main() -> Result<(), KernelExecError>{
             (image.height - filter.height) / stride.y + 1
         );
 
-        // Compile kernel
-        let convolve_kernel = context.use_kernel(convolve)
-            .index_param::<0>(Tensor2d::slide_xy(stride)) // slide based on first parameter
-            .compile();
+        // Compiles the compute kernel to SPIR-V or NVVM PTX
+        let convolve_kernel = context.compile(convolve);
 
-        //Execute kernel the resulting matrix are written on output variable
-        convolve_kernel(&image, &filter, &mut output).await?;
+        // Execute kernel the resulting matrix are written on output variable
+        convolve_kernel(image
+                .slide_xy(stride, filter.size)
+                .map_dest(output)
+                .shrink_to(Size2d::One),
+            &filter, &mut output).await?;
     }
     else {
         println!("No device available");
