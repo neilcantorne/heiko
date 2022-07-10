@@ -37,6 +37,14 @@ impl Library {
     }
 }
 
+impl Drop for Library {
+    fn drop(&mut self) {
+        unsafe {
+            dlclose(self.handle);
+        }
+    }
+}
+
 // FFI with Linux library loader
 type lib_handle = *const c_void;
 const RTLD_LAZY: i32 = 0x00001;
