@@ -9,7 +9,16 @@ pub(crate) struct Library {
 
 impl Library {
     pub unsafe fn load(name: &str) -> Result<Self, crate::library::LoadError> {
-        todo!();
+        let handle = {
+            let name_cstr = CString::new(name)?;
+            LoadLibraryA(name_cstr.as_ptr())
+        };
+
+        if handle.is_null() {
+            return Err(crate::library::LoadError::Windows { code: GetLastError() });
+        }
+
+        Ok( Self { handle } )
     }
 
     pub unsafe fn get_fn<T>(&self, symbol: &str) -> Option<T>{
