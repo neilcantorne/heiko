@@ -29,10 +29,6 @@ impl crate::backend::Backend for CLBackend {
             return Ok(Self { library });
         }
     }
-
-    fn release(&self) -> Result<(), Self::Error> {
-        todo!()
-    }
 }
 
 pub(crate) enum Error {
