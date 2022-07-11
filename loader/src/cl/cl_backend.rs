@@ -30,6 +30,12 @@ impl crate::backend::Backend for CLBackend {
     }
 }
 
-pub(crate) struct Error {
-    
+pub(crate) enum Error {
+    LoadFailed(crate::library::LoadError)
+}
+
+impl From<crate::library::LoadError> for Error {
+    fn from(load_error: crate::library::LoadError) -> Self {
+        Self::LoadFailed(load_error)
+    }
 }
