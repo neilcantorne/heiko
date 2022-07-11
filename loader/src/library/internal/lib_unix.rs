@@ -8,6 +8,11 @@ pub(crate) struct Library {
 }   
 
 impl Library {
+
+    pub fn lib_check<const LIBCOUNT: usize>(names: &[&str; LIBCOUNT]) -> [bool; LIBCOUNT]  {
+        crate::library::files_exists::<false, LIBCOUNT, &str>("/usr/lib", names).0
+    }
+    
     pub unsafe fn load(name: &str) -> Result<Self, crate::library::LoadError> {
         let handle = {
             let name_cstr = CString::new(name)?;
