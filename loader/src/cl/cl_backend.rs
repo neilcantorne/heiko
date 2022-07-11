@@ -1,5 +1,7 @@
+#![allow(non_snake_case)]
+
 use crate::library::Library;
-use std::path::Path;
+use std::{path::Path, os::raw::c_char};
 
 pub(crate) struct CLBackend {
     library: Library
@@ -22,7 +24,10 @@ impl crate::backend::Backend for CLBackend {
     }
 
     fn load() -> Result<Self, Self::Error> where Self: Sized {
-        todo!()
+        unsafe {
+            let library = Library::load(LIBNAME)?;
+            return Ok(Self { library });
+        }
     }
 
     fn release(&self) -> Result<(), Self::Error> {
