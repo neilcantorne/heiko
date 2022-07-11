@@ -47,7 +47,7 @@ impl Drop for Library {
     }
 }
 
-// FFI with Linux library loader
+// FFI with Unix library loader
 type lib_handle = *const c_void;
 const RTLD_LAZY: i32 = 0x00001;
 

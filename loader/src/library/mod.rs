@@ -1,19 +1,13 @@
-#[cfg(target_os = "linux")]
+#[cfg(target_family = "unix")]
 mod internal {
-    mod lib_linux;
-    pub(crate) use lib_linux::Library;
+    mod lib_unix;
+    pub(crate) use lib_unix::Library;
 }
 
 #[cfg(target_os = "windows")]
 mod internal {
     mod lib_windows;
     pub(crate) use lib_windows::Library;
-}
-
-#[cfg(target_os = "macos")]
-mod internal {
-    mod lib_macos;
-    pub(crate) use lib_macos::Library;
 }
 
 mod load_error;
