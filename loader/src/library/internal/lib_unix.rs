@@ -4,6 +4,7 @@
 use std::{os::raw::c_char, ffi::{c_void, CString, CStr}};
 use crate::library::LoadError;
 
+#[derive(Clone)]
 pub(crate) struct Library {
     handle : lib_handle
 }   
