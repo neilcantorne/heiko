@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+#[derive(Clone)]
 pub(crate) enum LoadError {
     Unix { message: String },
     Windows { code: u32 },
