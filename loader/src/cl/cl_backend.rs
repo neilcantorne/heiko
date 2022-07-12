@@ -1,10 +1,9 @@
 #![allow(non_snake_case)]
 
 use crate::library::Library;
-use std::{path::Path, os::raw::c_char};
 
 pub(crate) struct CLBackend {
-    library: Library
+    library: Library,
 }
 
 #[cfg(target_os = "linux")]
