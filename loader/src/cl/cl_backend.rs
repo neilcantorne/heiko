@@ -1,21 +1,25 @@
 #![allow(non_snake_case)]
 
+use std::os::raw::c_char;
 use std::{ffi::c_void, borrow::Borrow};
 
 use crate::library::{Library, LoadError};
+use crate::cl;
 
 pub(crate) struct CLBackend {
     library: Library,
-    pub(in super) clGetDeviceIDs: *const c_void,
-    pub(in super) clGetDeviceInfo: *const c_void,
-    pub(in super) clCreateContext: *const c_void,
-    pub(in super) clReleaseContext: *const c_void,
-    pub(in super) clCreateProgramWithIL: *const c_void,
-    pub(in super) clEnqueueNDRangeKernel: *const c_void,
-    pub(in super) clBuildProgram: *const c_void,
-    pub(in super) clCreateCommandQueue: *const c_void,
-    pub(in super) clCreateKernel: *const c_void,
-    pub(in super) clFinish: *const c_void,
+
+    // Function table
+    pub(in super) clGetDeviceIDs: extern fn(cl::platform_id, cl::device_type, u32, *mut cl::device_id, *mut u32) -> i32,
+    pub(in super) clGetDeviceInfo: extern fn(cl::device_id, cl::device_info, usize, *mut c_void, *mut usize) -> i32,
+    pub(in super) clCreateContext: extern fn(*const cl::context_properties, u32, *const cl::device_id, usize, *mut c_void, *mut i32) -> cl::context,
+    pub(in super) clReleaseContext: extern fn(cl::context) -> i32,
+    pub(in super) clCreateProgramWithIL: extern fn(cl::context, *const c_void, usize, *mut i32) -> cl::program,
+    pub(in super) clEnqueueNDRangeKernel: extern fn(cl::command_queue, cl::kernel, u32, *const usize, *const usize, *const usize, u32, *const cl::event, *mut cl::event) -> i32,
+    pub(in super) clBuildProgram: extern fn(cl::program, u32, *const cl::device_id, *const c_char, usize,*mut c_void) -> i32,
+    pub(in super) clCreateCommandQueue: extern fn(cl::context, cl::device_id, cl::command_queue_properties, *mut i32) -> cl::command_queue,
+    pub(in super) clCreateKernel: extern fn(cl::program, *const c_char, *mut i32) -> cl::kernel,
+    pub(in super) clFinish: extern fn(cl::command_queue) -> i32
 }
 
 #[cfg(target_os = "linux")]
@@ -32,47 +36,35 @@ impl crate::backend::Backend for CLBackend {
         Library::lib_check(&[LIBNAME])[0]
     }
 
-    fn load() -> Result<Self, LoadError> where Self: Sized {
-        let library;
-        let clGetDeviceIDs;
-        let clGetDeviceInfo;
-        let clCreateContext;
-        let clReleaseContext;
-        let clCreateProgramWithIL;
-        let clEnqueueNDRangeKernel;
-        let clBuildProgram;
-        let clCreateCommandQueue;
-        let clCreateKernel;
-        let clFinish;
+    unsafe fn load() -> Result<Self, LoadError> where Self: Sized {
+        let library = Library::load(LIBNAME)?;
 
-        unsafe {
-            library = Library::load(LIBNAME)?;
+        // Load funcitons
+        let clGetDeviceIDs = library.get_fn("clGetDeviceIDs")?;
+        let clGetDeviceInfo = library.get_fn("clGetDeviceInfo")?;
+        let clCreateContext = library.get_fn("clCreateContext")?;
+        let clReleaseContext = library.get_fn("clReleaseContext")?;
+        let clCreateProgramWithIL = library.get_fn("clCreateProgramWithIL")?;
+        let clEnqueueNDRangeKernel = library.get_fn("clEnqueueNDRangeKernel")?;
+        let clBuildProgram = library.get_fn("clBuildProgram")?;
+        let clCreateCommandQueue = library.get_fn("clCreateCommandQueue")?;
+        let clCreateKernel = library.get_fn("clCreateKernel")?;
+        let clFinish = library.get_fn("clFinish")?;
 
-            // Load funcitons
-            clGetDeviceIDs = library.get_fn("clGetDeviceIDs")?;
-            clGetDeviceInfo = library.get_fn("clGetDeviceInfo")?;
-            clCreateContext = library.get_fn("clCreateContext")?;
-            clReleaseContext = library.get_fn("clReleaseContext")?;
-            clCreateProgramWithIL = library.get_fn("clCreateProgramWithIL")?;
-            clEnqueueNDRangeKernel = library.get_fn("clEnqueueNDRangeKernel")?;
-            clBuildProgram = library.get_fn("clBuildProgram")?;
-            clCreateCommandQueue = library.get_fn("clCreateCommandQueue")?;
-            clCreateKernel = library.get_fn("clCreateKernel")?;
-            clFinish = library.get_fn("clFinish")?;
-        }
+        use std::mem::transmute;
 
         Ok(Self {
             library,
-            clGetDeviceIDs,
-            clGetDeviceInfo,
-            clCreateContext,
-            clReleaseContext,
-            clCreateProgramWithIL,
-            clEnqueueNDRangeKernel,
-            clBuildProgram,
-            clCreateCommandQueue,
-            clCreateKernel,
-            clFinish,
+            clGetDeviceIDs: transmute(clGetDeviceIDs),
+            clGetDeviceInfo: transmute(clGetDeviceInfo),
+            clCreateContext: transmute(clCreateContext),
+            clReleaseContext: transmute(clReleaseContext),
+            clCreateProgramWithIL: transmute(clCreateProgramWithIL),
+            clEnqueueNDRangeKernel: transmute(clEnqueueNDRangeKernel),
+            clBuildProgram: transmute(clBuildProgram),
+            clCreateCommandQueue: transmute(clCreateCommandQueue),
+            clCreateKernel: transmute(clCreateKernel),
+            clFinish: transmute(clFinish)
         })
     }
 }
