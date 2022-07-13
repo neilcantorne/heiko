@@ -6,16 +6,16 @@ use crate::library::{Library, LoadError};
 
 pub(crate) struct CLBackend {
     library: Library,
-    clGetDeviceIDs: *const c_void,
-    clGetDeviceInfo: *const c_void,
-    clCreateContext: *const c_void,
-    clReleaseContext: *const c_void,
-    clCreateProgramWithIL: *const c_void,
-    clEnqueueNDRangeKernel: *const c_void,
-    clBuildProgram: *const c_void,
-    clCreateCommandQueue: *const c_void,
-    clCreateKernel: *const c_void,
-    clFinish: *const c_void,
+    pub(in super) clGetDeviceIDs: *const c_void,
+    pub(in super) clGetDeviceInfo: *const c_void,
+    pub(in super) clCreateContext: *const c_void,
+    pub(in super) clReleaseContext: *const c_void,
+    pub(in super) clCreateProgramWithIL: *const c_void,
+    pub(in super) clEnqueueNDRangeKernel: *const c_void,
+    pub(in super) clBuildProgram: *const c_void,
+    pub(in super) clCreateCommandQueue: *const c_void,
+    pub(in super) clCreateKernel: *const c_void,
+    pub(in super) clFinish: *const c_void,
 }
 
 #[cfg(target_os = "linux")]
