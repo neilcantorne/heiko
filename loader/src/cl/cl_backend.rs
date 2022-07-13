@@ -1,7 +1,5 @@
-#![allow(non_snake_case)]
-
 use std::os::raw::c_char;
-use std::{ffi::c_void, borrow::Borrow};
+use std::{ffi::c_void};
 
 use crate::library::{Library, LoadError};
 use crate::cl;
