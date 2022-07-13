@@ -1,9 +1,14 @@
 #![allow(non_snake_case)]
 
-use crate::library::Library;
+use std::{ffi::c_void, borrow::Borrow};
+
+use crate::library::{Library, LoadError};
 
 pub(crate) struct CLBackend {
     library: Library,
+    clGetDeviceIDs: *const c_void,
+    clGetDeviceInfo: *const c_void,
+    clCreateContext: *const c_void,
 }
 
 #[cfg(target_os = "linux")]
@@ -16,26 +21,30 @@ const LIBNAME : &str = "OpenCL.dll";
 const LIBNAME : &str = "libOpenCL.dylib";
 
 impl crate::backend::Backend for CLBackend {
-    type Error = Error;
-
     fn is_installed() -> bool {
         Library::lib_check(&[LIBNAME])[0]
     }
 
-    fn load() -> Result<Self, Self::Error> where Self: Sized {
+    fn load() -> Result<Self, LoadError> where Self: Sized {
+        let library;
+        let clGetDeviceIDs;
+        let clGetDeviceInfo;
+        let clCreateContext;
+
         unsafe {
-            let library = Library::load(LIBNAME)?;
-            return Ok(Self { library });
+            library = Library::load(LIBNAME)?;
+
+            // Load funcitons
+            clGetDeviceIDs = library.get_fn("clGetDeviceIDs")?;
+            clGetDeviceInfo = library.get_fn("clGetDeviceInfo")?;
+            clCreateContext = library.get_fn("clCreateContext")?; 
         }
-    }
-}
 
-pub(crate) enum Error {
-    LoadFailed(crate::library::LoadError)
-}
-
-impl From<crate::library::LoadError> for Error {
-    fn from(load_error: crate::library::LoadError) -> Self {
-        Self::LoadFailed(load_error)
+        Ok(Self {
+            library,
+            clGetDeviceIDs,
+            clGetDeviceInfo,
+            clCreateContext
+        })
     }
 }
