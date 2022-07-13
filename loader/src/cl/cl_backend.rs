@@ -1,5 +1,5 @@
 use std::os::raw::c_char;
-use std::{ffi::c_void};
+use std::ffi::c_void;
 
 use crate::library::{Library, LoadError};
 use crate::cl;
@@ -20,6 +20,7 @@ pub(crate) struct CLBackend {
     pub(in super) cl_finish: extern fn(cl::command_queue) -> i32
 }
 
+// OpenCL name depends on OS
 #[cfg(target_os = "linux")]
 const LIBNAME : &str = "libOpenCL.so";
 
@@ -29,6 +30,7 @@ const LIBNAME : &str = "OpenCL.dll";
 #[cfg(target_os = "macos")]
 const LIBNAME : &str = "libOpenCL.dylib";
 
+// CL Backend implementation
 impl crate::backend::Backend for CLBackend {
     fn is_installed() -> bool {
         Library::lib_check(&[LIBNAME])[0]
@@ -37,7 +39,7 @@ impl crate::backend::Backend for CLBackend {
     unsafe fn load() -> Result<Self, LoadError> where Self: Sized {
         let library = Library::load(LIBNAME)?;
 
-        // Load funcitons
+        // Load functions
         let cl_get_device_ids = library.get_fn("clGetDeviceIDs")?;
         let cl_get_device_info = library.get_fn("clGetDeviceInfo")?;
         let cl_create_context = library.get_fn("clCreateContext")?;
