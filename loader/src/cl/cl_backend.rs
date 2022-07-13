@@ -9,6 +9,13 @@ pub(crate) struct CLBackend {
     clGetDeviceIDs: *const c_void,
     clGetDeviceInfo: *const c_void,
     clCreateContext: *const c_void,
+    clReleaseContext: *const c_void,
+    clCreateProgramWithIL: *const c_void,
+    clEnqueueNDRangeKernel: *const c_void,
+    clBuildProgram: *const c_void,
+    clCreateCommandQueue: *const c_void,
+    clCreateKernel: *const c_void,
+    clFinish: *const c_void,
 }
 
 #[cfg(target_os = "linux")]
@@ -30,6 +37,13 @@ impl crate::backend::Backend for CLBackend {
         let clGetDeviceIDs;
         let clGetDeviceInfo;
         let clCreateContext;
+        let clReleaseContext;
+        let clCreateProgramWithIL;
+        let clEnqueueNDRangeKernel;
+        let clBuildProgram;
+        let clCreateCommandQueue;
+        let clCreateKernel;
+        let clFinish;
 
         unsafe {
             library = Library::load(LIBNAME)?;
@@ -37,14 +51,28 @@ impl crate::backend::Backend for CLBackend {
             // Load funcitons
             clGetDeviceIDs = library.get_fn("clGetDeviceIDs")?;
             clGetDeviceInfo = library.get_fn("clGetDeviceInfo")?;
-            clCreateContext = library.get_fn("clCreateContext")?; 
+            clCreateContext = library.get_fn("clCreateContext")?;
+            clReleaseContext = library.get_fn("clReleaseContext")?;
+            clCreateProgramWithIL = library.get_fn("clCreateProgramWithIL")?;
+            clEnqueueNDRangeKernel = library.get_fn("clEnqueueNDRangeKernel")?;
+            clBuildProgram = library.get_fn("clBuildProgram")?;
+            clCreateCommandQueue = library.get_fn("clCreateCommandQueue")?;
+            clCreateKernel = library.get_fn("clCreateKernel")?;
+            clFinish = library.get_fn("clFinish")?;
         }
 
         Ok(Self {
             library,
             clGetDeviceIDs,
             clGetDeviceInfo,
-            clCreateContext
+            clCreateContext,
+            clReleaseContext,
+            clCreateProgramWithIL,
+            clEnqueueNDRangeKernel,
+            clBuildProgram,
+            clCreateCommandQueue,
+            clCreateKernel,
+            clFinish,
         })
     }
 }
