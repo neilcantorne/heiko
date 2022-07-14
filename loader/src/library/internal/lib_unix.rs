@@ -7,7 +7,7 @@ use crate::library::LoadError;
 #[derive(Clone)]
 pub(crate) struct Library {
     handle : lib_handle
-}   
+}
 
 impl Library {
 
