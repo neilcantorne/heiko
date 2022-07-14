@@ -1,11 +1,13 @@
 use std::os::raw::c_char;
 use std::ffi::c_void;
+use std::sync::atomic::AtomicU32;
 
 use crate::library::{Library, LoadError};
 use crate::cl;
 
 pub(crate) struct CLBackend {
     library: Library,
+    ref_count: AtomicU32,
 
     // Function table
     pub(in super) cl_get_device_ids: extern fn(cl::platform_id, cl::device_type, u32, *mut cl::device_id, *mut u32) -> i32,
@@ -55,6 +57,7 @@ impl crate::backend::Backend for CLBackend {
 
         Ok(Self {
             library,
+            ref_count: AtomicU32::new(0),
             cl_get_device_ids: transmute(cl_get_device_ids),
             cl_get_device_info: transmute(cl_get_device_info),
             cl_create_context: transmute(cl_create_context),
@@ -68,3 +71,5 @@ impl crate::backend::Backend for CLBackend {
         })
     }
 }
+
+unsafe impl Sync for CLBackend { }
