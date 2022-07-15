@@ -1,11 +1,13 @@
 use std::os::raw::c_char;
-use std::{ffi::c_void};
+use std::ffi::c_void;
+use std::sync::atomic::AtomicU32;
 
 use crate::library::{Library, LoadError};
 use crate::cl;
 
 pub(crate) struct CLBackend {
     library: Library,
+    ref_count: AtomicU32,
 
     // Function table
     pub(in super) cl_get_device_ids: extern fn(cl::platform_id, cl::device_type, u32, *mut cl::device_id, *mut u32) -> i32,
@@ -20,6 +22,7 @@ pub(crate) struct CLBackend {
     pub(in super) cl_finish: extern fn(cl::command_queue) -> i32
 }
 
+// OpenCL name depends on OS
 #[cfg(target_os = "linux")]
 const LIBNAME : &str = "libOpenCL.so";
 
@@ -29,6 +32,7 @@ const LIBNAME : &str = "OpenCL.dll";
 #[cfg(target_os = "macos")]
 const LIBNAME : &str = "libOpenCL.dylib";
 
+// CL Backend implementation
 impl crate::backend::Backend for CLBackend {
     fn is_installed() -> bool {
         Library::lib_check(&[LIBNAME])[0]
@@ -37,7 +41,7 @@ impl crate::backend::Backend for CLBackend {
     unsafe fn load() -> Result<Self, LoadError> where Self: Sized {
         let library = Library::load(LIBNAME)?;
 
-        // Load funcitons
+        // Load functions
         let cl_get_device_ids = library.get_fn("clGetDeviceIDs")?;
         let cl_get_device_info = library.get_fn("clGetDeviceInfo")?;
         let cl_create_context = library.get_fn("clCreateContext")?;
@@ -53,6 +57,7 @@ impl crate::backend::Backend for CLBackend {
 
         Ok(Self {
             library,
+            ref_count: AtomicU32::new(0),
             cl_get_device_ids: transmute(cl_get_device_ids),
             cl_get_device_info: transmute(cl_get_device_info),
             cl_create_context: transmute(cl_create_context),
@@ -66,3 +71,5 @@ impl crate::backend::Backend for CLBackend {
         })
     }
 }
+
+unsafe impl Sync for CLBackend { }
